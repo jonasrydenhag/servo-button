@@ -6,12 +6,19 @@ var gpio = require('rpi-gpio');
 var servoState = require('../servoState');
 
 var pin = 11;
+var promise;
 
 gpio.on('change', function(channel, value) {
-  if (value === true) {
-    servoState.change()
+  if (value === true && promise === undefined) {
+    promise = servoState.change()
       .then(function (state) {
         console.log('Server state changed to "' + state + '"');
+      })
+      .catch(function (ex) {
+          console.log('Error: ' + ex);
+      })
+      .then(function (state) {
+          promise = undefined;
       });
   }
 });
