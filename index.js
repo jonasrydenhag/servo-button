@@ -21,5 +21,6 @@ gpio.setup(pin, gpio.DIR_IN, gpio.EDGE_RISING);
 process.on('SIGINT', function () {
   gpio.destroy(function() {
     console.log('All pins unexported');
+    process.exit();
   });
 });
