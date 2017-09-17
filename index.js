@@ -1,26 +1,25 @@
-#!/usr/bin/python
+#!/usr/bin/env node
 
-import time
-import RPi.GPIO as GPIO
-import subprocess
+'use strict';
 
-GPIO.setmode(GPIO.BOARD)
+var gpio = require('rpi-gpio');
+var servoState = require('../servoState');
 
-GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+var pin = 11;
 
-activated = 0
+gpio.on('change', function(channel, value) {
+  if (value === true) {
+    servoState.change()
+      .then(function (state) {
+        console.log('Server state changed to "' + state + '"');
+      });
+  }
+});
 
-try:
-	while True:
-		if (GPIO.input(11) == 1):
-			if (activated == 0):
-				activated = 1
-				subprocess.call(["python", "/home/pi/bin/blueServo.py"])
-				time.sleep(1)
-		else:
-			activated = 0
+gpio.setup(pin, gpio.DIR_IN, gpio.EDGE_RISING);
 
-		time.sleep(0.01)
-				
-except KeyboardInterrupt:
-	GPIO.cleanup()
+process.on('SIGINT', function () {
+  gpio.destroy(function() {
+    console.log('All pins unexported');
+  });
+});
