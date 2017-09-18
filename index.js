@@ -18,7 +18,7 @@ gpio.on('change', function(channel, value) {
       .catch(function (ex) {
           debug(ex);
       })
-      .then(function (state) {
+      .then(function () {
           promise = undefined;
       });
   }
