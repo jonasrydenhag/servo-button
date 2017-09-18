@@ -11,6 +11,8 @@ var promise;
 
 gpio.on('change', function(channel, value) {
   if (value === true && promise === undefined) {
+    debug('Changes servo state ' + value);
+
     promise = servoState.change()
       .then(function (state) {
         debug('Server state changed to "' + state + '"');
@@ -24,13 +26,17 @@ gpio.on('change', function(channel, value) {
   }
 });
 
-gpio.setup(pin, gpio.DIR_IN, gpio.EDGE_RISING);
+gpio.setup(pin, gpio.DIR_IN, gpio.EDGE_BOTH, function (err) {
+  if (err !== undefined) {
+    debug(err);
+  } else {
+    debug('Setup done');
+  }
+});
 
 process.on('SIGINT', function () {
   gpio.destroy(function() {
-    var msg = "All pins unexported";
-    debug(msg);
-    console.log(msg);
+    debug("All pins unexported");
 
     process.exit();
   });
